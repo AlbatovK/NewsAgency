@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import com.albatros.newsagent.databinding.ActivitySplashBinding
+import com.albatros.newsagency.databinding.ActivitySplashBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -40,9 +40,9 @@ class SplashActivity : AppCompatActivity() {
             lifecycleScope.launch(Dispatchers.Main) {
                 binding.motionLayout.transitionToEnd()
                 delay(1500)
-                val intent = Intent(applicationContext, MainNavigationActivity::class.java)
-                startActivity(intent)
-                overridePendingTransition(0, R.xml.alpha_transition)
+                //val intent = Intent(applicationContext, MainNavigationActivity::class.java)
+                //startActivity(intent)
+                //overridePendingTransition(0, R.xml.alpha_transition)
             }
         }
     }
