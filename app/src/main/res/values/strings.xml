@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">NewsAgency</string>
+    <string name="str_downloading_process">Загрузка данных</string>
+    <string name="str_download_finished">Загрузка завершена</string>
+    <string name="str_quote">\"Лучше делать новости, чем рассказывать о них.\" Уинстон Черчилль</string>
+</resources>
