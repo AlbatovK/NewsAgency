@@ -22,12 +22,10 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
         lifecycleScope.launchWhenStarted {
             val launcher = lifecycleScope.launch(Dispatchers.IO) {
-                appContext.db.getSiteDao().insertSite(Site("Site", "https://habr.com/rss/all"))
-                val siteList = appContext.db.getSiteDao().getSites()
                 lifecycleScope.launch(Dispatchers.Main) {
-                    binding.progressBar.max = siteList.size
+                    binding.progressBar.max = SiteManager.siteList.size
                 }
-                for (site in siteList) {
+                for (site in SiteManager.siteList) {
                     try { NetLoader.loadFromSite(site) } catch (e: Exception) { }
                     val update = lifecycleScope.launch(Dispatchers.Main) {
                         binding.progressBar.incrementProgressBy(1)
@@ -40,7 +38,7 @@ class SplashActivity : AppCompatActivity() {
             lifecycleScope.launch(Dispatchers.Main) {
                 binding.motionLayout.transitionToEnd()
                 delay(1500)
-                val intent = Intent(applicationContext, MainActivity::class.java)
+                val intent = Intent(applicationContext, NavActivity::class.java)
                 startActivity(intent)
                 overridePendingTransition(0, R.xml.alpha_transition)
             }

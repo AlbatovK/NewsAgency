@@ -4,4 +4,8 @@
     <string name="str_download_finished">Загрузка завершена</string>
     <string name="str_quote">\"Лучше делать новости, чем рассказывать о них.\" Уинстон Черчилль</string>
     <string name="mn_settings">Настройки</string>
+    <string name="title_activity_nav">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>
