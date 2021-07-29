@@ -40,9 +40,9 @@ class SplashActivity : AppCompatActivity() {
             lifecycleScope.launch(Dispatchers.Main) {
                 binding.motionLayout.transitionToEnd()
                 delay(1500)
-                //val intent = Intent(applicationContext, MainNavigationActivity::class.java)
-                //startActivity(intent)
-                //overridePendingTransition(0, R.xml.alpha_transition)
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(0, R.xml.alpha_transition)
             }
         }
     }
