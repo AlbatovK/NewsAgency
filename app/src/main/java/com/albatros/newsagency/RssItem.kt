@@ -1,8 +1,9 @@
 package com.albatros.newsagency
 
+import android.content.Context
+import androidx.annotation.PluralsRes
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 import kotlin.collections.HashSet
 
 class RssItem(
@@ -13,8 +14,8 @@ class RssItem(
     pubDate: String
 ) {
 
-    var categoryWords = HashSet<String>()
-    lateinit var date: Date
+    private var categoryWords = HashSet<String>()
+    var date: Date = Date(System.currentTimeMillis())
 
     init {
         for (pattern in ApplicationContext.datePatterns)
@@ -25,4 +26,35 @@ class RssItem(
 
     override fun equals(other: Any?): Boolean =
         if (other is RssItem) other.title.equals(title, ignoreCase = true) else false
+
+    fun getRegexDate(context: Context): String {
+        val nowDate = Calendar.getInstance().timeInMillis
+        var time = (nowDate - this.date.time).toDouble() / (1000 * 60 * 60 * 24)
+
+        fun getQString(@PluralsRes id: Int, quantity: Int) = context.resources.getQuantityString(id, quantity)
+
+        var date = time.toInt().toString() + " " + getQString(R.plurals.day_plurals, time.toInt())
+        if (time < 1) {
+            time = (nowDate - this.date.time).toDouble() / (1000 * 60 * 60)
+            date = time.toInt().toString() + " " + getQString(R.plurals.hour_plurals, time.toInt())
+            if (time < 1) {
+                time = (nowDate - this.date.time).toDouble() / (1000 * 60)
+                date = (time.toInt()).toString() + " " + getQString(R.plurals.min_plurals, time.toInt())
+                if (time < 1) {
+                    time = (nowDate - this.date.time).toDouble() / 1000
+                    date = time.toInt().toString() + " " + getQString(R.plurals.sec_plurals, time.toInt())
+                }
+            }
+        }
+        return date
+    }
+
+    override fun hashCode(): Int {
+        var result = site.hashCode()
+        result = 31 * result + link.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + categoryWords.hashCode()
+        result = 31 * result + date.hashCode()
+        return result
+    }
 }

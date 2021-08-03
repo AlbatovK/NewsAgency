@@ -12,4 +12,6 @@ class Site(
     val url: String,
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0
-)
+) {
+    var imageLink = ""
+}

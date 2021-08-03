@@ -1,11 +1,19 @@
 <resources>
     <string name="app_name">NewsAgency</string>
+    <string name="qr_info">QR-Код вашего набора сайтов</string>
+    <string name="back_msg">Назад</string>
+    <string name="title_activity_nav">NavActivity</string>
     <string name="str_downloading_process">Загрузка данных</string>
     <string name="str_download_finished">Загрузка завершена</string>
-    <string name="str_quote">\"Лучше делать новости, чем рассказывать о них.\" Уинстон Черчилль</string>
+    <string name="item_content">%1$s | %2$s</string>
+    <string name="upload_news_data">%1$d %2$s с %3$d %4$s</string>
     <string name="mn_settings">Настройки</string>
-    <string name="title_activity_nav">MainActivity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="net_exception">Нет данных : Проверьте подключение</string>
+    <string name="downloading_hint_1">Подождите...</string>
+    <string name="downloading_hint_2">Подождите..</string>
+    <string name="downloading_hint_3">Подождите.</string>
+    <string name="title_home">Лента</string>
+    <string name="title_dashboard">Закладки</string>
+    <string name="title_notifications">Настройки</string>
+    <string name="str_already_liked">Уже добавлено</string>
 </resources>

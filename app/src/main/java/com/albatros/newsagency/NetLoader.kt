@@ -13,7 +13,7 @@ object NetLoader {
 
     fun loadFromSite(from: Site) {
         val doc = getSiteContent(from)
-        XmlFeedParser.parseFeedFromXml(doc.toString(), from).forEach {
+        XmlFeedParser.parseFeedFrom(doc.toString(), from).forEach {
             RssItemManager.addItem(it)
         }
     }

@@ -1,12 +1,15 @@
 package com.albatros.newsagency
 
 import android.app.Application
+import android.util.Xml
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.albatros.newsagency.database.SiteDatabase
 import com.albatros.newsagency.utils.PreferenceManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 class ApplicationContext : Application() {
 
@@ -15,15 +18,15 @@ class ApplicationContext : Application() {
         const val dbName = "database"
 
         val datePatterns = arrayOf(
-            "E, d MMM YYY H:m:s z",
-            "E MMM dd HH::mm::ss z yyyy"
+            "E, d MMM yyyy H:m:s z",
+            "E MMM dd HH:mm:ss z yyyy"
         )
 
         val defaultSites = arrayOf(
             Site("Habr", "https://habr.com/ru/rss/all/all"),
             Site("HiNews", "https://hi-news.ru/feed"),
             Site("Ixbt News", "https://www.ixbt.com/export/news.rss"),
-            Site("Новости IT", "https://novostit.com"),
+            Site("Новости IT", "https://novostit.com/feed"),
             Site("BBC Tech", "http://feeds.bbci.co.uk/news/technology/rss.xml"),
             Site("BBC News", "http://feeds.bbci.co.uk/news/world/rss.xml"),
             Site("Лента.Ру", "https://lenta.ru/rss/top7"),
@@ -51,5 +54,8 @@ class ApplicationContext : Application() {
                     SiteManager.addSite(site)
             }
         }
+        val liked = FileManager.readFile(this, FileManager.liked_news_storage)
+        val likedList = XmlFeedParser.parseFeedFrom(liked, null, external = false)
+        RssItemManager.likedNewsList = likedList.toMutableList()
     }
 }

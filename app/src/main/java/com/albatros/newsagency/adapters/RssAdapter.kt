@@ -13,7 +13,10 @@ class RssAdapter(private val items: List<RssItem>) : RecyclerView.Adapter<RssVie
         return RssViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RssViewHolder, position: Int) = holder.bind(items[position])
+    override fun onBindViewHolder(holder: RssViewHolder, position: Int) {
+        val item = items[position]
+        holder.item = item
+    }
 
     override fun getItemCount(): Int = items.size
 

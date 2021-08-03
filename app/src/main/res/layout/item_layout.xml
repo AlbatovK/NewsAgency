@@ -46,16 +46,17 @@
 
                 <TextView
                     android:id="@+id/date_txt"
-                    android:layout_width="200dp"
+                    android:layout_width="260dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="52dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="30dp"
                     android:layout_marginRight="52dp"
                     android:layout_marginBottom="8dp"
                     android:fontFamily="serif"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/grey_white" />
 
                 <ImageView
                     android:id="@+id/share_btn"
@@ -67,15 +68,6 @@
                     android:contentDescription="@string/app_name"
                     android:foregroundGravity="center"
                     app:srcCompat="@android:drawable/ic_menu_share" />
-
-                <ImageView
-                    android:id="@+id/del_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="#FFFFFF"
-                    android:contentDescription="@string/app_name"
-                    app:srcCompat="@android:drawable/ic_menu_delete" />
 
                 <ImageView
                     android:id="@+id/like_btn"
