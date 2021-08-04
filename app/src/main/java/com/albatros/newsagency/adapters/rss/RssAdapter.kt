@@ -1,4 +1,4 @@
-package com.albatros.newsagency.adapters
+package com.albatros.newsagency.adapters.rss
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

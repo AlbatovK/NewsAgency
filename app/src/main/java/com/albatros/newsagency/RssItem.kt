@@ -16,6 +16,7 @@ class RssItem(
 
     private var categoryWords = HashSet<String>()
     var date: Date = Date(System.currentTimeMillis())
+    var liked = false
 
     init {
         for (pattern in ApplicationContext.datePatterns)
@@ -25,7 +26,7 @@ class RssItem(
     }
 
     override fun equals(other: Any?): Boolean =
-        if (other is RssItem) other.title.equals(title, ignoreCase = true) else false
+        if (other is RssItem) other.title.trim().equals(title.trim(), ignoreCase = true) else false
 
     fun getRegexDate(context: Context): String {
         val nowDate = Calendar.getInstance().timeInMillis

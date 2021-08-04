@@ -23,9 +23,15 @@
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup"
         tools:targetApi="m">
+        <activity
+            android:name=".NavActivity"
+            android:alwaysRetainTaskState="true"
+            android:persistent="true" />
         <activity android:name=".CameraActivity" />
-        <activity android:name=".NavActivity" />
-        <activity android:name=".SplashActivity">
+        <activity
+            android:name=".SplashActivity"
+            android:alwaysRetainTaskState="true"
+            android:persistent="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,5 +39,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

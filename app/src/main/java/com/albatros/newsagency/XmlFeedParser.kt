@@ -1,5 +1,6 @@
 package com.albatros.newsagency
 
+import com.albatros.newsagency.containers.SiteManager
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -23,6 +24,9 @@ object XmlFeedParser {
         )
     }
 
+    /**
+     * External = true for parsing from distant net source, false for parsing from internal storage sources
+     */
     fun parseFeedFrom(feed: String, from: Site?, external: Boolean = true): List<RssItem> {
         val parser: Parser = Parser.xmlParser()
         val doc: Document = Jsoup.parse(feed, "", parser)
@@ -32,6 +36,10 @@ object XmlFeedParser {
         }
     }
 
+    /**
+     * Xml representation of sites contained on device
+     * Used for creating info barcode
+     */
     fun createStringOf(sites: List<Site>): String {
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
         val root = doc.createElement(sites_root_tag)
@@ -54,6 +62,10 @@ object XmlFeedParser {
         return writer.toString()
     }
 
+    /**
+     * Creates xml representation of RssItems in order to be written into storage for later use
+     * See FileManager and storage tags
+     */
     fun createDocOf(items: List<RssItem>): org.w3c.dom.Document {
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
         val rootElem = doc.createElement(rss_root_tag)

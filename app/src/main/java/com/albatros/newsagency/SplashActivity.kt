@@ -2,16 +2,13 @@ package com.albatros.newsagency
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.WorkManager
-import androidx.work.PeriodicWorkRequest
-import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.*
+import com.albatros.newsagency.containers.RssItemManager
+import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.ActivitySplashBinding
 import com.albatros.newsagency.worker.SendingWorker
 import kotlinx.coroutines.Dispatchers
@@ -27,15 +24,14 @@ class SplashActivity : AppCompatActivity() {
     private val onStopDelay: Long    = 1_500
     private val step                 = delay.toInt()
 
-    private fun setWindowState(hideToolBar: Boolean = true) {
-        binding = ActivitySplashBinding.inflate(layoutInflater)
-        if (hideToolBar) supportActionBar?.hide()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, binding.root).let {
-            it.hide(WindowInsetsCompat.Type.systemBars())
-            it.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
+    private fun setState() {
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 
     private fun launchWorker() {
@@ -52,9 +48,13 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setWindowState()
+        setState()
+        actionBar?.hide()
+        binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        RssItemManager.clearNews()
         binding.progressBar.max = SiteManager.siteList.size * maxBarCount
+        binding.progressBar.progress = 0
         lifecycleScope.launchWhenStarted {
             val launcher = lifecycleScope.launch(Dispatchers.IO) {
                 for (site in SiteManager.siteList) {

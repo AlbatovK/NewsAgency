@@ -1,6 +1,6 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.containers
 
-import android.content.Context
+import com.albatros.newsagency.Site
 import com.albatros.newsagency.database.SiteDao
 
 object SiteManager {
@@ -29,6 +29,5 @@ object SiteManager {
 
     fun clear() = siteList.clear()
 
-    fun getSiteByName(name: String): Site =
-        siteList.find { name == it.name } ?: Site(name, "?")
+    fun getSiteByName(name: String): Site = siteList.find { name == it.name } ?: Site(name, "?")
 }

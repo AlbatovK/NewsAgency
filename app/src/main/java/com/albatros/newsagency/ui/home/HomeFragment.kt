@@ -1,5 +1,6 @@
 package com.albatros.newsagency.ui.home
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,25 +10,45 @@ import android.widget.Toast
 import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.albatros.newsagency.*
-import com.albatros.newsagency.adapters.RssAdapter
+import com.albatros.newsagency.adapters.rss.RssAdapter
+import com.albatros.newsagency.containers.RssItemManager
+import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.FragmentHomeBinding
+import com.albatros.newsagency.utils.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
+    private var defaultComparator: Comparator<RssItem>? = null
 
     companion object {
-        private var pos: Int = 0
+        var pos: Int = 0
+    }
+
+    private fun sortNews() {
+        defaultComparator = when (binding.root.context.getSharedPreferences(PreferenceManager.SETTINGS_NAME, Context.MODE_MULTI_PROCESS).getString(
+            PreferenceManager.SORT_KEY,
+            PreferenceManager.SORT_BY_DATE
+        )) {
+            PreferenceManager.SORT_BY_DATE ->
+                RssItemManager.getComparator(ItemComparators.SORT_BY_DATE)
+            PreferenceManager.SORT_BY_SITE ->
+                RssItemManager.getComparator(ItemComparators.SORT_BY_SITE)
+            PreferenceManager.SORT_BY_SIZE ->
+                RssItemManager.getComparator(ItemComparators.SORT_BY_SIZE)
+            else -> null
+        }
+        Collections.sort(RssItemManager.newsList, defaultComparator)
     }
 
     private val refresher = SwipeRefreshLayout.OnRefreshListener {
@@ -65,6 +86,7 @@ class HomeFragment : Fragment() {
                     it.isEnabled = true
                 }
                 (activity as NavActivity).binding.navView.getOrCreateBadge(R.id.navigation_home).number = RssItemManager.itemsCount
+                sortNews()
                 if (this@HomeFragment.isVisible) {
                     binding.swipeContainer.isRefreshing = false
                     binding.downloadingHint.visibility = View.INVISIBLE
@@ -83,8 +105,9 @@ class HomeFragment : Fragment() {
 
         override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {
             if (dir == ItemTouchHelper.LEFT) {
-                RssItemManager.removeItemAt(vh.adapterPosition)
+                val item = RssItemManager.removeItemAt(vh.adapterPosition)
                 (binding.rssList.adapter as RssAdapter).notifyItemRemoved(vh.adapterPosition)
+                RssItemManager.deletedList.add(item)
             }
         }
     }
@@ -94,13 +117,13 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        retainInstance = true
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val touchHelper = ItemTouchHelper(touchCallback)
         touchHelper.attachToRecyclerView(binding.rssList)
         binding.rssList.layoutManager = LinearLayoutManager(container?.context)
         binding.rssList.adapter = RssAdapter(RssItemManager.newsList)
         binding.swipeContainer.setOnRefreshListener(refresher)
+        sortNews()
         binding.rssList.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 binding.rssList.scrollToPosition(pos)
@@ -122,6 +145,10 @@ class HomeFragment : Fragment() {
             pos = (binding.rssList.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition()
         else
             binding.rssList.scrollToPosition(pos)
+        val favDoc = XmlFeedParser.createDocOf(RssItemManager.likedNewsList)
+        FileManager.intoFile(favDoc, FileManager.liked_news_storage, binding.root.context)
+        val delDoc = XmlFeedParser.createDocOf(RssItemManager.deletedList)
+        FileManager.intoFile(delDoc, FileManager.deleted_news_storage, binding.root.context)
     }
 
 

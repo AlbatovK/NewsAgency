@@ -18,8 +18,8 @@ import androidx.work.ForegroundInfo
 import androidx.work.ExistingPeriodicWorkPolicy
 import com.albatros.newsagency.NetLoader
 import com.albatros.newsagency.R
-import com.albatros.newsagency.RssItemManager
-import com.albatros.newsagency.SiteManager
+import com.albatros.newsagency.containers.RssItemManager
+import com.albatros.newsagency.containers.SiteManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
