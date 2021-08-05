@@ -13,7 +13,7 @@
 
 
     <application
-        android:name=".ApplicationContext"
+        android:name=".app.ApplicationContext"
         android:allowBackup="true"
         android:icon="@drawable/news_icon"
         android:label="@string/app_name"
@@ -24,12 +24,12 @@
         tools:ignore="AllowBackup"
         tools:targetApi="m">
         <activity
-            android:name=".NavActivity"
+            android:name=".ui.NavActivity"
             android:alwaysRetainTaskState="true"
             android:persistent="true" />
-        <activity android:name=".CameraActivity" />
+        <activity android:name=".ui.CameraActivity" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:alwaysRetainTaskState="true"
             android:persistent="true">
             <intent-filter>

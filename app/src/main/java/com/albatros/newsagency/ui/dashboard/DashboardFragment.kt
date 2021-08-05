@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.albatros.newsagency.NavActivity
+import com.albatros.newsagency.ui.NavActivity
 import com.albatros.newsagency.R
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.adapters.rss.RssAdapter

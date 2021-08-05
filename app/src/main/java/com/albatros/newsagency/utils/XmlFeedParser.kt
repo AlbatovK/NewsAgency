@@ -1,6 +1,11 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.utils
 
+import com.albatros.newsagency.RssItem
+import com.albatros.newsagency.Site
 import com.albatros.newsagency.containers.SiteManager
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -89,6 +94,23 @@ object XmlFeedParser {
         return doc
     }
 
+    /**
+     * Parses info from sites from QR-code
+     * Adds the list to the database, no duplicates
+     */
+    @DelicateCoroutinesApi
+    fun parseSiteDoc(from: String) {
+        val parser: Parser = Parser.xmlParser()
+        val doc: Document = Jsoup.parse(from, "", parser)
+        doc.select(site_tag).forEach {
+            GlobalScope.launch {
+                val site = Site(it.select(name_tag).text(), it.select(url_tag).text())
+                if (SiteManager.siteList.find { it.url == site.url } == null)
+                    SiteManager.addSite(site)
+            }
+        }
+    }
+
     private var rss_root_tag    = "items"
     private var item_tag        = "item"
     private var link_tag        = "link"
@@ -97,6 +119,7 @@ object XmlFeedParser {
     private var description_tag = "description"
     private var date_tag        = "pubDate"
     private var image_tag       = "url"
+
     private var sites_root_tag  = "sites"
     private var site_tag        = "site"
     private var name_tag        = "name"

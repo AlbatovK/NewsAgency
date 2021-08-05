@@ -1,5 +1,6 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.utils
 
+import com.albatros.newsagency.Site
 import com.albatros.newsagency.containers.RssItemManager
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

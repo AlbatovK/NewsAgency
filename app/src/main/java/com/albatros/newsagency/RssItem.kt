@@ -2,6 +2,7 @@ package com.albatros.newsagency
 
 import android.content.Context
 import androidx.annotation.PluralsRes
+import com.albatros.newsagency.app.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashSet
@@ -16,7 +17,6 @@ class RssItem(
 
     private var categoryWords = HashSet<String>()
     var date: Date = Date(System.currentTimeMillis())
-    var liked = false
 
     init {
         for (pattern in ApplicationContext.datePatterns)

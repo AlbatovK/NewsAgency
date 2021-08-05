@@ -40,7 +40,7 @@
     <string name="str_category_unknown">Неизвестно</string>
     <string name="str_preferences">Настройки</string>
     <string name="title_activity_settings">Настройки</string>
-    <string name="str_sort_hint">Сортировать по :</string>
+    <string name="str_sort_hint">Сортировать</string>
     <string name="sort_by_date_settings">По дате</string>
     <string name="str_sort_by_site_settings">По сайту</string>
     <string name="str_sort_by_size_settings">По длине</string>

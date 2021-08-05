@@ -19,7 +19,8 @@ import com.albatros.newsagency.adapters.rss.RssAdapter
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.FragmentHomeBinding
-import com.albatros.newsagency.utils.PreferenceManager
+import com.albatros.newsagency.ui.NavActivity
+import com.albatros.newsagency.utils.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -30,10 +31,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private var defaultComparator: Comparator<RssItem>? = null
-
-    companion object {
-        var pos: Int = 0
-    }
 
     private fun sortNews() {
         defaultComparator = when (binding.root.context.getSharedPreferences(PreferenceManager.SETTINGS_NAME, Context.MODE_MULTI_PROCESS).getString(
@@ -124,27 +121,16 @@ class HomeFragment : Fragment() {
         binding.rssList.adapter = RssAdapter(RssItemManager.newsList)
         binding.swipeContainer.setOnRefreshListener(refresher)
         sortNews()
-        binding.rssList.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                binding.rssList.scrollToPosition(pos)
-                binding.rssList.viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-        })
+
         return binding.root
     }
 
     override fun onPause() {
         super.onPause()
-        pos = (binding.rssList.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
-        Toast.makeText(binding.root.context, pos.toString(), Toast.LENGTH_LONG).show()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        if (hidden)
-            pos = (binding.rssList.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition()
-        else
-            binding.rssList.scrollToPosition(pos)
         val favDoc = XmlFeedParser.createDocOf(RssItemManager.likedNewsList)
         FileManager.intoFile(favDoc, FileManager.liked_news_storage, binding.root.context)
         val delDoc = XmlFeedParser.createDocOf(RssItemManager.deletedList)
@@ -157,6 +143,5 @@ class HomeFragment : Fragment() {
         (binding.rssList.adapter as RssAdapter).notifyItemRangeChanged(0, (binding.rssList.adapter as RssAdapter).itemCount)
         binding.downloadingHint.visibility = View.INVISIBLE
         binding.swipeContainer.isRefreshing = false
-        binding.rssList.smoothScrollToPosition(pos)
     }
 }

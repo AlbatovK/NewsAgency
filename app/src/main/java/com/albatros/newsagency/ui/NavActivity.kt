@@ -1,4 +1,4 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,16 +8,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.albatros.newsagency.R
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.ActivityNavBinding
 import com.albatros.newsagency.databinding.DialogBarcodeBinding
+import com.albatros.newsagency.utils.BarcodeProcessor
+import com.albatros.newsagency.utils.FileManager
+import com.albatros.newsagency.utils.XmlFeedParser
 import com.google.android.material.snackbar.Snackbar
 
 
 class NavActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityNavBinding
+
+    companion object {
+        lateinit var bnd: ActivityNavBinding
+        lateinit var instance: NavActivity
+    }
 
     private fun setState() {
         window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
@@ -39,6 +48,8 @@ class NavActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNavBinding.inflate(layoutInflater)
+        bnd = binding
+        instance = this
         setContentView(binding.root)
         binding.toolbar.title = getString(R.string.app_name)
         setSupportActionBar(binding.toolbar)

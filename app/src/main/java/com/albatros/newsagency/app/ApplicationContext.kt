@@ -1,11 +1,14 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.app
 
 import android.app.Application
 import androidx.room.Room
+import com.albatros.newsagency.Site
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.database.SiteDatabase
+import com.albatros.newsagency.utils.FileManager
 import com.albatros.newsagency.utils.PreferenceManager
+import com.albatros.newsagency.utils.XmlFeedParser
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

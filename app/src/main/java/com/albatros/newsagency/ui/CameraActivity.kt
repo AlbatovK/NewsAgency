@@ -100,7 +100,7 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 } */
-package com.albatros.newsagency
+package com.albatros.newsagency.ui
 
 import android.Manifest
 import android.app.Activity
@@ -115,12 +115,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import com.albatros.newsagency.databinding.ActivityCameraBinding
+import com.albatros.newsagency.utils.XmlFeedParser
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 class CameraActivity : AppCompatActivity() {
 
@@ -152,6 +154,7 @@ class CameraActivity : AppCompatActivity() {
         } else true
     }
 
+    @DelicateCoroutinesApi
     private val processor = object : Detector.Processor<Barcode> {
 
         override fun receiveDetections(detections: Detector.Detections<Barcode>?) {
@@ -160,7 +163,9 @@ class CameraActivity : AppCompatActivity() {
                     val qr = detectedItems.valueAt(0)
                     qr.displayValue.let {
                         Log.d("ID: $it", "!!")
+                        XmlFeedParser.parseSiteDoc(it)
                     }
+
                     finish()
                 }
             }

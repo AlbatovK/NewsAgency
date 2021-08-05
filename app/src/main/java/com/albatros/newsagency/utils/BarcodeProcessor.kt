@@ -1,7 +1,8 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.utils
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import com.albatros.newsagency.Site
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 

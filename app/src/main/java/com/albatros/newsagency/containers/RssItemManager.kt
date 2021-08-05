@@ -1,6 +1,6 @@
 package com.albatros.newsagency.containers
 
-import com.albatros.newsagency.ItemComparators
+import com.albatros.newsagency.utils.ItemComparators
 import com.albatros.newsagency.RssItem
 import java.util.*
 

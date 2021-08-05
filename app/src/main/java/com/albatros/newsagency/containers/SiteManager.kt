@@ -25,6 +25,14 @@ object SiteManager {
         }
     }
 
+    suspend fun deleteSiteAt(pos: Int) {
+        if (pos < siteList.size) {
+            val site = siteList[pos]
+            site.imageLink = ""
+            deleteSite(site)
+        }
+    }
+
     suspend fun init() { siteList = dao.getSites().toMutableList() }
 
     fun clear() = siteList.clear()

@@ -1,4 +1,4 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,9 +7,11 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.work.*
+import com.albatros.newsagency.R
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.ActivitySplashBinding
+import com.albatros.newsagency.utils.NetLoader
 import com.albatros.newsagency.worker.SendingWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

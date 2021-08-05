@@ -3,21 +3,31 @@ package com.albatros.newsagency.ui.notifications
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.RadioGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.albatros.newsagency.ItemComparators
+import androidx.recyclerview.widget.RecyclerView
 import com.albatros.newsagency.R
+import com.albatros.newsagency.adapters.rss.RssAdapter
+import com.albatros.newsagency.adapters.site.SiteAdapter
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
-import com.albatros.newsagency.adapters.site.SiteAdapter
 import com.albatros.newsagency.databinding.FragmentNotificationsBinding
 import com.albatros.newsagency.ui.home.HomeFragment
+import com.albatros.newsagency.utils.ItemComparators
 import com.albatros.newsagency.utils.PreferenceManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
+
 
 class NotificationsFragment : Fragment() {
 
@@ -40,14 +50,39 @@ class NotificationsFragment : Fragment() {
         }
     }
 
+    private val touchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.DOWN) {
+        override fun onMove(
+            rcv: RecyclerView,
+            vh: RecyclerView.ViewHolder,
+            trg: RecyclerView.ViewHolder
+        ): Boolean = true
+
+        override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {
+            if (dir == ItemTouchHelper.DOWN) {
+                    try {
+                           lifecycleScope.launch(Dispatchers.IO) {
+                               SiteManager.deleteSiteAt(vh.adapterPosition)
+                               launch(Dispatchers.Main) {
+                                   (binding.siteList.adapter as SiteAdapter).notifyItemRemoved(vh.adapterPosition)
+                               }
+                           }
+                    } catch(e : Exception) { Log.d("!!!", e.localizedMessage)}
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNotificationsBinding.inflate(inflater, container, false)
-        binding.siteList.layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
+        binding.siteList.requestFocusFromTouch()
+        binding.siteList.layoutManager =
+            GridLayoutManager(binding.root.context, 2, GridLayoutManager.HORIZONTAL, false)
         binding.siteList.adapter = SiteAdapter(SiteManager.siteList)
+        val itemTouchHelper = ItemTouchHelper(touchCallback)
+        itemTouchHelper.attachToRecyclerView(binding.siteList)
         val settings: SharedPreferences =
             binding.root.context.getSharedPreferences(PreferenceManager.SETTINGS_NAME, Context.MODE_MULTI_PROCESS)
         val editor = settings.edit()
@@ -76,7 +111,6 @@ class NotificationsFragment : Fragment() {
         )
         val sortChangeListener =
             RadioGroup.OnCheckedChangeListener { _, checkedId ->
-                HomeFragment.pos = 0
                 val manager = PreferenceManager(binding.root.context)
                 when (checkedId) {
                     R.id.sort_by_date_button -> {

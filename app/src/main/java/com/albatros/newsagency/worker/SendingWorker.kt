@@ -16,7 +16,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkerParameters
 import androidx.work.ForegroundInfo
 import androidx.work.ExistingPeriodicWorkPolicy
-import com.albatros.newsagency.NetLoader
+import com.albatros.newsagency.utils.NetLoader
 import com.albatros.newsagency.R
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager

@@ -1,4 +1,4 @@
-package com.albatros.newsagency
+package com.albatros.newsagency.utils
 
 import android.content.Context
 import android.content.res.AssetManager
