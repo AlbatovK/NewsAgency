@@ -1,118 +1,14 @@
-/*package com.albatros.newsagency
-
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Bundle
-import android.util.Log
-import android.view.SurfaceHolder
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.util.isNotEmpty
-import com.albatros.newsagency.databinding.ActivityCameraBinding
-import com.google.android.gms.vision.CameraSource
-import com.google.android.gms.vision.Detector
-import com.google.android.gms.vision.barcode.Barcode
-import com.google.android.gms.vision.barcode.BarcodeDetector
-
-class CameraActivity : AppCompatActivity() {
-
-    lateinit var cameraSource: CameraSource
-    private lateinit var binding: ActivityCameraBinding
-
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityCameraBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        val processor = object : Detector.Processor<Barcode> {
-            override fun release() {}
-            override fun receiveDetections(detections: Detector.Detections<Barcode>) {
-                if (detections.detectedItems.isNotEmpty()) {
-                    Log.d("!!!!", detections.detectedItems[0].displayValue)
-                    val barcode = detections.detectedItems
-                    if (barcode.size() > 0) {
-                        Toast.makeText(
-                            this@CameraActivity,
-                            barcode.valueAt(0)?.displayValue ?: "j",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        finish()
-                    }
-                }
-            }
-        }
-
-        val detector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.ALL_FORMATS).build()
-        detector.setProcessor(processor)
-        cameraSource = CameraSource.Builder(this, detector)
-            .setRequestedFps(25f)
-            .setAutoFocusEnabled(true).build()
-
-        val surfaceCallBack = object : SurfaceHolder.Callback {
-
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-            }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                cameraSource.stop()
-            }
-
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                if (ContextCompat.checkSelfPermission(
-                        this@CameraActivity,
-                        Manifest.permission.CAMERA
-                    ) == PackageManager.PERMISSION_GRANTED
-                )                    cameraSource.start(holder)
-                else requestPermissions(arrayOf<String>(Manifest.permission.CAMERA), 1001)
-            }
-        }
-        binding.cameraSurfaceView.holder.addCallback(surfaceCallBack)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1001) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.CAMERA
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                }
-                cameraSource.start(binding.cameraSurfaceView.holder)
-            } else {
-                Toast.makeText(this, "sd", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-    }
-} */
 package com.albatros.newsagency.ui
 
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import com.albatros.newsagency.R
 import com.albatros.newsagency.containers.SiteManager
@@ -134,13 +30,10 @@ class CameraActivity : AppCompatActivity() {
     private val surfaceCallback = object : SurfaceHolder.Callback {
 
         override fun surfaceCreated(holder: SurfaceHolder) {
-            if (ActivityCompat.checkSelfPermission(
-                    applicationContext,
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-            )
-                if (isPlayServicesAvailable(this@CameraActivity))
-                    cameraSource.start(holder)
+            if (ActivityCompat.checkSelfPermission(this@CameraActivity, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED && isPlayServicesAvailable(this@CameraActivity))
+                cameraSource.start(holder)
+            else requestPermissions(arrayOf(Manifest.permission.CAMERA), 1001)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder) = cameraSource.stop()
@@ -164,13 +57,10 @@ class CameraActivity : AppCompatActivity() {
                 if (detectedItems.isNotEmpty()) {
                     val qr = detectedItems.valueAt(0)
                     qr.displayValue.let {
-                        Log.d("ID: $it", "!!")
                         XmlFeedParser.parseSiteDoc(it)
                         NavActivity.increaseBottomBadge(R.id.navigation_notifications, SiteManager.sitesCount, true)
-
+                        finish()
                     }
-
-                    finish()
                 }
             }
         }
@@ -179,10 +69,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun setWindowState() {
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        )
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -190,36 +77,28 @@ class CameraActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 
+    @DelicateCoroutinesApi
     private fun setupCameraView() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.ALL_FORMATS).build().apply {
-                    setProcessor(processor)
-                    if (!isOperational) {
-                        return
-                    }
-                    cameraSource =
-                        CameraSource.Builder(this@CameraActivity, this).setAutoFocusEnabled(true)
-                            .setFacing(CameraSource.CAMERA_FACING_BACK)
-                            .setRequestedFps(25f)
-                            .setAutoFocusEnabled(true)
-                            .build()
-                }
-        } else
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), 1001)
+        BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.ALL_FORMATS).build().apply {
+            setProcessor(processor)
+            if (!isOperational)
+                return
+            cameraSource = CameraSource.Builder(this@CameraActivity, this).setAutoFocusEnabled(true)
+                .setFacing(CameraSource.CAMERA_FACING_BACK)
+                .setRequestedFps(25f)
+                .setAutoFocusEnabled(true)
+                .build()
+        }
     }
 
+    @DelicateCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater)
         setWindowState()
         setContentView(binding.root)
-        setupCameraView()
         binding.cameraSurfaceView.holder.addCallback(surfaceCallback)
+        setupCameraView()
     }
 
     override fun onDestroy() {
@@ -227,30 +106,10 @@ class CameraActivity : AppCompatActivity() {
         cameraSource.release()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    @DelicateCoroutinesApi
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1001) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                BarcodeDetector.Builder(this)
-                    .setBarcodeFormats(Barcode.ALL_FORMATS).build().apply {
-                        setProcessor(processor)
-                        if (!isOperational) {
-                            return
-                        }
-                        cameraSource =
-                            CameraSource.Builder(this@CameraActivity, this)
-                                .setAutoFocusEnabled(true)
-                                .setFacing(CameraSource.CAMERA_FACING_BACK)
-                                .setRequestedFps(25f)
-                                .setAutoFocusEnabled(true)
-                                .build()
-                        binding.cameraSurfaceView.holder.addCallback(surfaceCallback)
-                    }
-            }
-        }
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                setupCameraView()
     }
 }

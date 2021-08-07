@@ -140,10 +140,4 @@ class HomeFragment : Fragment() {
         val delDoc = XmlFeedParser.createDocOf(RssItemManager.deletedList)
         FileManager.intoFile(delDoc, FileManager.deleted_news_storage, binding.root.context)
     }
-
-    override fun onResume() {
-        super.onResume()
-        binding.downloadingHint.visibility = View.INVISIBLE
-        binding.swipeContainer.isRefreshing = false
-    }
 }

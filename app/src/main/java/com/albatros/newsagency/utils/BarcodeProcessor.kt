@@ -11,7 +11,7 @@ object BarcodeProcessor {
     /**
      * Create barcode of given parameters of Qrcode type
      */
-    fun createBarcodeFrom(res: String, width: Int = 300, height: Int = 300): Bitmap? {
+    fun createBarcodeFrom(res: String, width: Int = 500, height: Int = 500): Bitmap? {
         val matrix = try { MultiFormatWriter().encode(res, BarcodeFormat.QR_CODE, width, height, null) }
         catch (exception: IllegalArgumentException) { return null }
         val pixels = IntArray(width * height)
