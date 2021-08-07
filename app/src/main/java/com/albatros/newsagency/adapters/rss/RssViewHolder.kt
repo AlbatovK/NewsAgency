@@ -31,7 +31,7 @@ class RssViewHolder(private val binding: ItemLayoutBinding) :
             binding.titleTxt.text = i.title
             binding.dateTxt.text =
                 context.getString(R.string.item_content, i.site.name, i.getRegexDate(context))
-                if (i in RssItemManager.likedNewsList) binding.likeBtn.setColorFilter(R.color.black) else binding.likeBtn.clearColorFilter()
+                if (i in RssItemManager.likedNewsList) binding.likeBtn.setColorFilter(context.resources.getColor(R.color.red)) else binding.likeBtn.clearColorFilter()
                 binding.likeBtn.setOnClickListener {
                     if (i in RssItemManager.likedNewsList) {
                         val msg: Snackbar =
@@ -45,6 +45,7 @@ class RssViewHolder(private val binding: ItemLayoutBinding) :
                         msg.show()
                     }
                     if (i !in RssItemManager.likedNewsList) {
+                       NavActivity.increaseBottomBadge(R.id.navigation_dashboard)
                         val msg = Snackbar.make(
                             NavActivity.bnd.root, context.getString(R.string.str_liked_done),
                             Snackbar.LENGTH_SHORT
@@ -57,12 +58,12 @@ class RssViewHolder(private val binding: ItemLayoutBinding) :
                         msg.view.setPadding(0, 0, 0, 0)
                         msg.show()
                         RssItemManager.addLikedItem(i)
-                        binding.likeBtn.setColorFilter(R.color.black)
+                        binding.likeBtn.setColorFilter(context.resources.getColor(R.color.red))
                     }
                 }
 
             binding.shareBtn.setOnClickListener {
-                binding.shareBtn.setColorFilter(R.color.black)
+                binding.shareBtn.setColorFilter(R.color.white)
                 val shareIntent = Intent()
                 shareIntent.action = Intent.ACTION_SEND
                 shareIntent.putExtra(Intent.EXTRA_TEXT, item.link)

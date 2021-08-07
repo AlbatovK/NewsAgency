@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:title="@string/app_name"
+        android:id="@+id/add_site"
+        android:icon="@drawable/ic_baseline_create_24"
+        app:showAsAction="always" />
     <item
         android:title="@string/app_name"
         android:id="@+id/scan_qr"
-        android:icon="@android:drawable/ic_menu_add"
-        app:showAsAction="ifRoom" />
-    <item
-        android:title="@string/app_name"
-        android:id="@+id/exit"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:icon="@drawable/ic_photo"
         app:showAsAction="always" />
     <item
         android:title="@string/app_name"
         android:id="@+id/create_qr"
-        android:icon="@drawable/qr_code"
+        android:icon="@drawable/ic_baseline_qr_code_24"
+        app:showAsAction="always" />
+    <item
+        android:title="@string/app_name"
+        android:id="@+id/exit"
+        android:icon="@drawable/ic_baseline_exit"
         app:showAsAction="always" />
 </menu>

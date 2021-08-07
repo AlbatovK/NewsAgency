@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="8dp"
+    android:orientation="horizontal"
+    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/str_add_site_input_name">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edit_dialog_name_text_view"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="130dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints=""
+            android:background="@color/white"
+            android:ems="10"
+            android:fontFamily="serif"
+            android:gravity="center_vertical"
+            android:inputType="textPersonName"
+            android:outlineAmbientShadowColor="@color/grey"
+            android:shadowColor="@color/white"
+            android:textAlignment="gravity"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColorHighlight="@color/grey" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/str_add_site_input_url">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edit_dialog_address_text_view"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="130dp"
+            android:layout_height="70dp"
+            android:autofillHints=""
+            android:background="@color/white"
+            android:ems="10"
+            android:fontFamily="serif"
+            android:gravity="center_vertical"
+            android:inputType="textPersonName"
+            android:outlineAmbientShadowColor="@color/grey"
+            android:shadowColor="@color/white"
+            android:textAlignment="gravity"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColorHighlight="@color/grey" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

@@ -74,21 +74,22 @@ class SendingWorker(context: Context, params: WorkerParameters) : CoroutineWorke
     }
 
     override suspend fun doWork(): Result = coroutineScope {
-        RssItemManager.clearNews()
-        val loader = launch(Dispatchers.IO) {
-            val init = launch(Dispatchers.IO) {
+        if (RssItemManager.isEmpty) {
+            val loader = launch(Dispatchers.IO) {
+                val init = launch(Dispatchers.IO) {
                 if (SiteManager.sitesCount == 0)
                     SiteManager.init()
-            }
-            init.join()
-            val parsing = launch(Dispatchers.IO) {
+                 }
+                init.join()
+                val parsing = launch(Dispatchers.IO) {
                 for (site in SiteManager.siteList)
                     try { NetLoader.loadFromSite(site) }
                     catch (e: Exception) { }
+                }
+                parsing.join()
             }
-            parsing.join()
+            loader.join()
         }
-        loader.join()
         createCurrentChannel()
         pos = Random().nextInt(RssItemManager.itemsCount)
         val contentIntent = getContentIntent(pos)

@@ -29,6 +29,7 @@ class DashboardFragment : Fragment() {
             if (dir == ItemTouchHelper.LEFT) {
                 RssItemManager.removeLikedItemAt(vh.adapterPosition)
                 (binding.likedList.adapter as RssAdapter).notifyItemRemoved(vh.adapterPosition)
+                NavActivity.increaseBottomBadge(R.id.navigation_dashboard, -1)
             }
         }
     }
@@ -50,6 +51,5 @@ class DashboardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         binding.likedList.adapter?.notifyDataSetChanged()
-        (activity as NavActivity).binding.navView.getOrCreateBadge(R.id.navigation_dashboard).number = RssItemManager.likedNewsList.size
     }
 }

@@ -114,6 +114,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
+import com.albatros.newsagency.R
+import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.ActivityCameraBinding
 import com.albatros.newsagency.utils.XmlFeedParser
 import com.google.android.gms.common.ConnectionResult
@@ -164,6 +166,8 @@ class CameraActivity : AppCompatActivity() {
                     qr.displayValue.let {
                         Log.d("ID: $it", "!!")
                         XmlFeedParser.parseSiteDoc(it)
+                        NavActivity.increaseBottomBadge(R.id.navigation_notifications, SiteManager.sitesCount, true)
+
                     }
 
                     finish()

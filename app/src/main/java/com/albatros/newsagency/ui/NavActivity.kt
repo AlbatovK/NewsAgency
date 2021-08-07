@@ -2,21 +2,32 @@ package com.albatros.newsagency.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
+import android.util.Patterns
 import android.view.*
+import android.widget.Toast
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.albatros.newsagency.R
+import com.albatros.newsagency.Site
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.ActivityNavBinding
+import com.albatros.newsagency.databinding.AddSiteDialogBinding
 import com.albatros.newsagency.databinding.DialogBarcodeBinding
 import com.albatros.newsagency.utils.BarcodeProcessor
 import com.albatros.newsagency.utils.FileManager
 import com.albatros.newsagency.utils.XmlFeedParser
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.jsoup.Jsoup
 
 
 class NavActivity : AppCompatActivity() {
@@ -26,6 +37,12 @@ class NavActivity : AppCompatActivity() {
     companion object {
         lateinit var bnd: ActivityNavBinding
         lateinit var instance: NavActivity
+
+        fun increaseBottomBadge(@IdRes id: Int, number: Int = 1, clear: Boolean = false) {
+            if (clear)
+                bnd.navView.getOrCreateBadge(id).number = 0
+            bnd.navView.getOrCreateBadge(id).number += number
+        }
     }
 
     private fun setState() {
@@ -57,6 +74,7 @@ class NavActivity : AppCompatActivity() {
 
         val navController = findNavController(R.id.nav_host_fragment_activity_nav)
         binding.navView.setupWithNavController(navController)
+        increaseBottomBadge(R.id.navigation_notifications, SiteManager.sitesCount, clear = true)
         binding.navView.getOrCreateBadge(R.id.navigation_dashboard).number = RssItemManager.likedNewsList.size
         binding.navView.getOrCreateBadge(R.id.navigation_home).number = RssItemManager.itemsCount
 
@@ -105,6 +123,25 @@ class NavActivity : AppCompatActivity() {
         return true
     }
 
+    private fun checkSiteData(name: String, address: String) : Boolean {
+        val urlPattern = Patterns.WEB_URL
+        val matcher = urlPattern.matcher(address.lowercase())
+        return if (name.isEmpty() || address.isEmpty() || !matcher.matches()) {
+            Toast.makeText(applicationContext, getString(R.string.str_invalid_data), Toast.LENGTH_LONG).show()
+            false
+        } else {
+            var valid = false
+            Thread {
+                try {
+                    Jsoup.connect(address).get()
+                    valid = true
+                } catch (e: Exception) { }
+            }.start()
+            Thread.sleep(1000)
+            valid
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.exit -> {
@@ -124,10 +161,42 @@ class NavActivity : AppCompatActivity() {
                 dialogBinding.barcodeImg.setImageBitmap(bitmap)
                 builder
                     .setView(dialogBinding.root)
-                    .setPositiveButton(R.string.back_msg) { _, _ -> closeOptionsMenu() }
+                    .setPositiveButton(R.string.back_msg) { _, _ ->
+                        closeOptionsMenu()
+                        setState()
+                    }
                     .setTitle(R.string.qr_info)
                     .create()
                     .show()
+                true
+            }
+            R.id.add_site -> {
+                val builder = AlertDialog.Builder(this)
+                val viewBinding = AddSiteDialogBinding.inflate(layoutInflater)
+                val alertDialog = builder
+                    .setTitle(R.string.str_add_new_site)
+                    .setMessage(R.string.str_add_site_descr_dialog)
+                    .setIcon(R.drawable.rss_icon)
+                    .setView(viewBinding.root)
+                    .setNegativeButton(R.string.str_add_site_neg_button) { _, _ ->
+                        setState()
+                        closeOptionsMenu()
+                    }
+                    .setPositiveButton(R.string.str_add_site_pos_button) { _, _ ->
+                        setState()
+                        val name = viewBinding.editDialogNameTextView.text.toString().trim()
+                        val address = viewBinding.editDialogAddressTextView.text.toString().trim()
+                        if (checkSiteData(name, address))
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                if (Site(name, address) !in SiteManager.siteList) {
+                                    SiteManager.addSite(Site(name, address))
+                                    launch(Dispatchers.Main) {
+                                        increaseBottomBadge(R.id.navigation_notifications)
+                                    }
+                                }
+                            }
+                    }.create()
+                alertDialog.show()
                 true
             }
             else -> true

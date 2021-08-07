@@ -1,52 +1,62 @@
 package com.albatros.newsagency.ui.notifications
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnTouchListener
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.RadioGroup
+import android.widget.TextView.OnEditorActionListener
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.albatros.newsagency.R
-import com.albatros.newsagency.adapters.rss.RssAdapter
 import com.albatros.newsagency.adapters.site.SiteAdapter
 import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.FragmentNotificationsBinding
-import com.albatros.newsagency.ui.home.HomeFragment
+import com.albatros.newsagency.ui.NavActivity
 import com.albatros.newsagency.utils.ItemComparators
 import com.albatros.newsagency.utils.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-
 class NotificationsFragment : Fragment() {
 
     private lateinit var binding: FragmentNotificationsBinding
+
+    override fun onResume() {
+        super.onResume()
+        binding.siteList.adapter?.notifyDataSetChanged()
+    }
 
     private fun setPreferenceState(
         settings: SharedPreferences,
         group: RadioGroup,
         mode: String, map: HashMap<Int, String>,
-        std_mode: String) {
+        std_mode: String
+    ) {
         val keyIterator: Iterator<Int> = map.keys.iterator()
         val valueIterator: Iterator<String> = map.values.iterator()
         while (valueIterator.hasNext() && keyIterator.hasNext()) {
-            var hadNext = false
             if (settings.getString(mode, std_mode) == valueIterator.next()) {
                 group.check(keyIterator.next())
-                hadNext = true
+                continue
             }
-            if (!hadNext) keyIterator.next()
+            keyIterator.next()
         }
     }
 
@@ -59,15 +69,30 @@ class NotificationsFragment : Fragment() {
 
         override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {
             if (dir == ItemTouchHelper.DOWN) {
-                    try {
-                           lifecycleScope.launch(Dispatchers.IO) {
-                               SiteManager.deleteSiteAt(vh.adapterPosition)
-                               launch(Dispatchers.Main) {
-                                   (binding.siteList.adapter as SiteAdapter).notifyItemRemoved(vh.adapterPosition)
-                               }
-                           }
-                    } catch(e : Exception) { Log.d("!!!", e.localizedMessage)}
+                NavActivity.increaseBottomBadge(R.id.navigation_notifications, -1)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    SiteManager.deleteSiteAt(vh.adapterPosition)
+                    launch(Dispatchers.Main) {
+                        (binding.siteList.adapter as SiteAdapter).notifyItemRemoved(vh.adapterPosition)
+                    }
+                }
             }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun EditText.onRightDrawableClicked(onClicked: (view: EditText) -> Unit) {
+        this.setOnTouchListener { v, event ->
+            var hasConsumed = false
+            if (v is EditText) {
+                if (event.x >= v.width - v.totalPaddingRight) {
+                    if (event.action == MotionEvent.ACTION_UP) {
+                        onClicked(this)
+                    }
+                    hasConsumed = true
+                }
+            }
+            hasConsumed
         }
     }
 
@@ -77,6 +102,58 @@ class NotificationsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNotificationsBinding.inflate(inflater, container, false)
+        binding.editTxt.onRightDrawableClicked {
+            it.text.clear()
+            val inputMethodManager =
+                activity?.getSystemService(
+                    Activity.INPUT_METHOD_SERVICE
+                ) as InputMethodManager
+            if (inputMethodManager.isAcceptingText) {
+                inputMethodManager.hideSoftInputFromWindow(
+                    activity?.currentFocus?.windowToken,
+                    0
+                )
+                it.clearFocus()
+            }
+        }
+        binding.editTxt.setOnEditorActionListener { v, id, event ->
+            val inputMethodManager =
+                activity?.getSystemService(
+                    Activity.INPUT_METHOD_SERVICE
+                ) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(
+                activity?.currentFocus?.windowToken,
+                0
+            )
+            binding.editTxt.clearFocus()
+            false
+        }
+
+        binding.editTxt.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val inputMethodManager =
+                    activity?.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE
+                    ) as InputMethodManager
+                if (!inputMethodManager.isAcceptingText) {
+                    inputMethodManager.hideSoftInputFromWindow(
+                        activity?.currentFocus?.windowToken,
+                        0
+                    )
+                    binding.editTxt.clearFocus()
+                }
+            }
+
+        })
+
         binding.siteList.requestFocusFromTouch()
         binding.siteList.layoutManager =
             GridLayoutManager(binding.root.context, 2, GridLayoutManager.HORIZONTAL, false)
@@ -84,7 +161,10 @@ class NotificationsFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(touchCallback)
         itemTouchHelper.attachToRecyclerView(binding.siteList)
         val settings: SharedPreferences =
-            binding.root.context.getSharedPreferences(PreferenceManager.SETTINGS_NAME, Context.MODE_MULTI_PROCESS)
+            binding.root.context.getSharedPreferences(
+                PreferenceManager.SETTINGS_NAME,
+                Context.MODE_MULTI_PROCESS
+            )
         val editor = settings.edit()
         val sortGroup: RadioGroup = binding.sortList
         val sortMap = HashMap<Int, String>()
@@ -166,6 +246,7 @@ class NotificationsFragment : Fragment() {
         sortGroup.setOnCheckedChangeListener(sortChangeListener)
         modeGroup.setOnCheckedChangeListener(modeChangeListener)
         editor.commit()
+        NavActivity.bnd.appBar.setExpanded(true, true)
         return binding.root
     }
 

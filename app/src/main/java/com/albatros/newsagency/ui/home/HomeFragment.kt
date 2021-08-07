@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.Toast
 import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +30,13 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private var defaultComparator: Comparator<RssItem>? = null
+
+    companion object {
+        var pos = 0
+        set(value) {
+            field = if (value > 0) value else 0
+        }
+    }
 
     private fun sortNews() {
         defaultComparator = when (binding.root.context.getSharedPreferences(PreferenceManager.SETTINGS_NAME, Context.MODE_MULTI_PROCESS).getString(
@@ -82,7 +88,7 @@ class HomeFragment : Fragment() {
                 activity?.findViewById<BottomNavigationView>(R.id.nav_view)?.menu?.forEach {
                     it.isEnabled = true
                 }
-                (activity as NavActivity).binding.navView.getOrCreateBadge(R.id.navigation_home).number = RssItemManager.itemsCount
+                NavActivity.increaseBottomBadge(R.id.navigation_home, number = RssItemManager.itemsCount, clear = true)
                 sortNews()
                 if (this@HomeFragment.isVisible) {
                     binding.swipeContainer.isRefreshing = false
@@ -105,6 +111,7 @@ class HomeFragment : Fragment() {
                 val item = RssItemManager.removeItemAt(vh.adapterPosition)
                 (binding.rssList.adapter as RssAdapter).notifyItemRemoved(vh.adapterPosition)
                 RssItemManager.deletedList.add(item)
+                NavActivity.increaseBottomBadge(R.id.navigation_home, -1)
             }
         }
     }
@@ -114,6 +121,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        retainInstance = true
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val touchHelper = ItemTouchHelper(touchCallback)
         touchHelper.attachToRecyclerView(binding.rssList)
@@ -121,13 +129,9 @@ class HomeFragment : Fragment() {
         binding.rssList.adapter = RssAdapter(RssItemManager.newsList)
         binding.swipeContainer.setOnRefreshListener(refresher)
         sortNews()
-
         return binding.root
     }
 
-    override fun onPause() {
-        super.onPause()
-    }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
@@ -137,10 +141,8 @@ class HomeFragment : Fragment() {
         FileManager.intoFile(delDoc, FileManager.deleted_news_storage, binding.root.context)
     }
 
-
     override fun onResume() {
         super.onResume()
-        (binding.rssList.adapter as RssAdapter).notifyItemRangeChanged(0, (binding.rssList.adapter as RssAdapter).itemCount)
         binding.downloadingHint.visibility = View.INVISIBLE
         binding.swipeContainer.isRefreshing = false
     }
