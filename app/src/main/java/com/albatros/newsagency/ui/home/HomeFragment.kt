@@ -129,7 +129,7 @@ class HomeFragment : Fragment() {
             == PreferenceManager.FILTER_MODE) {
             val tags = XmlFeedParser.parseTagDoc(FileManager.readFile(binding.root.context, FileManager.tags_storage))
             val list = RssItemManager.newsList.filter { item ->
-                tags.find { item.categoryWords.contains(it) } != null
+                tags.find { item.categoryWords.contains(it.lowercase().trim()) } != null
             }
             if (tags.isEmpty())
                 binding.rssList.adapter = RssAdapter(RssItemManager.newsList)
