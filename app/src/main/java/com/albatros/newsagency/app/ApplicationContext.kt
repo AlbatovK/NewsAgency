@@ -78,5 +78,8 @@ class ApplicationContext : Application() {
         db = Room.databaseBuilder(applicationContext, SiteDatabase::class.java, dbName).build()
         initSiteManager()
         initRssManager()
+        PreferenceManager(this).setValueByKey(
+            PreferenceManager.PreferencePair(PreferenceManager.FILTER_KEY, PreferenceManager.NONE_FILTER_MODE)
+        )
     }
 }

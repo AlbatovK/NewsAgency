@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.nodes.TextNode
 import org.jsoup.parser.Parser
 import java.io.StringWriter
 import javax.xml.parsers.DocumentBuilderFactory
@@ -27,6 +28,12 @@ object XmlFeedParser {
                     from.name.lowercase(),
             element.select(date_tag).text()
         )
+    }
+
+    fun parseTagDoc(docString: String): List<String> {
+        val parser: Parser = Parser.xmlParser()
+        val doc: Document = Jsoup.parse(docString, "", parser)
+        return doc.select(tag_tag).map { it.text() }
     }
 
     /**
@@ -95,6 +102,21 @@ object XmlFeedParser {
     }
 
     /**
+     * Creates doc containing current search tags
+     */
+    fun createDocOf(tags: Array<String>): org.w3c.dom.Document {
+        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        val rootElem = doc.createElement(tag_root_tag)
+        for (tag in tags) {
+            val tagElem = doc.createElement(tag_tag)
+            tagElem.appendChild(doc.createTextNode(tag.trim() + " "))
+            rootElem.appendChild(tagElem)
+        }
+        doc.appendChild(rootElem)
+        return doc
+    }
+
+    /**
      * Parses info from sites from QR-code
      * Adds the list to the database, no duplicates
      */
@@ -124,4 +146,7 @@ object XmlFeedParser {
     private var site_tag        = "site"
     private var name_tag        = "name"
     private var url_tag         = "url"
+
+    private var tag_root_tag    = "tags"
+    private var tag_tag         = "tag"
 }

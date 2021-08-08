@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -15,8 +14,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.RadioGroup
-import android.widget.TextView.OnEditorActionListener
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -28,8 +25,10 @@ import com.albatros.newsagency.containers.RssItemManager
 import com.albatros.newsagency.containers.SiteManager
 import com.albatros.newsagency.databinding.FragmentNotificationsBinding
 import com.albatros.newsagency.ui.NavActivity
+import com.albatros.newsagency.utils.FileManager
 import com.albatros.newsagency.utils.ItemComparators
 import com.albatros.newsagency.utils.PreferenceManager
+import com.albatros.newsagency.utils.XmlFeedParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
@@ -104,6 +103,14 @@ class NotificationsFragment : Fragment() {
         binding = FragmentNotificationsBinding.inflate(inflater, container, false)
         binding.editTxt.onRightDrawableClicked {
             it.text.clear()
+            PreferenceManager(binding.root.context).setValueByKey(
+                PreferenceManager.PreferencePair(
+                    PreferenceManager.FILTER_KEY,
+                    PreferenceManager.NONE_FILTER_MODE
+                )
+            )
+            FileManager.deleteFile(binding.root.context, FileManager.tags_storage)
+
             val inputMethodManager =
                 activity?.getSystemService(
                     Activity.INPUT_METHOD_SERVICE
@@ -117,6 +124,12 @@ class NotificationsFragment : Fragment() {
             }
         }
         binding.editTxt.setOnEditorActionListener { v, id, event ->
+            PreferenceManager(binding.root.context).setValueByKey(
+                PreferenceManager.PreferencePair(
+                    PreferenceManager.FILTER_KEY,
+                    PreferenceManager.FILTER_MODE
+                )
+            )
             val inputMethodManager =
                 activity?.getSystemService(
                     Activity.INPUT_METHOD_SERVICE
@@ -128,6 +141,8 @@ class NotificationsFragment : Fragment() {
             binding.editTxt.clearFocus()
             false
         }
+        val lastData = XmlFeedParser.parseTagDoc(FileManager.readFile(binding.root.context, FileManager.tags_storage)).joinToString(", ")
+        binding.editTxt.setText(lastData)
 
         binding.editTxt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -139,6 +154,14 @@ class NotificationsFragment : Fragment() {
             }
 
             override fun afterTextChanged(s: Editable?) {
+                binding.root.context.openFileOutput(FileManager.tags_storage, Context.MODE_APPEND)
+                if (s?.length == 0)
+                    return
+                s?.let {
+                    val tags = s.toString().replace(" ", "").split(",").toTypedArray()
+                    val doc = XmlFeedParser.createDocOf(tags)
+                    FileManager.intoFile(doc, FileManager.tags_storage, binding.root.context)
+                }
                 val inputMethodManager =
                     activity?.getSystemService(
                         Activity.INPUT_METHOD_SERVICE
@@ -153,6 +176,8 @@ class NotificationsFragment : Fragment() {
             }
 
         })
+
+
 
         binding.siteList.requestFocusFromTouch()
         binding.siteList.layoutManager =
@@ -246,7 +271,7 @@ class NotificationsFragment : Fragment() {
         sortGroup.setOnCheckedChangeListener(sortChangeListener)
         modeGroup.setOnCheckedChangeListener(modeChangeListener)
         editor.commit()
-        NavActivity.bnd.appBar.setExpanded(true, true)
+        NavActivity.bnd!!.appBar.setExpanded(true, true)
         return binding.root
     }
 

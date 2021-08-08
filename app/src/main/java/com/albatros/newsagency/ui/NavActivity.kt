@@ -35,13 +35,15 @@ class NavActivity : AppCompatActivity() {
     lateinit var binding: ActivityNavBinding
 
     companion object {
-        lateinit var bnd: ActivityNavBinding
+        var bnd: ActivityNavBinding? = null
         lateinit var instance: NavActivity
 
         fun increaseBottomBadge(@IdRes id: Int, number: Int = 1, clear: Boolean = false) {
-            if (clear)
-                bnd.navView.getOrCreateBadge(id).number = 0
-            bnd.navView.getOrCreateBadge(id).number += number
+            bnd?.let {
+                if (clear)
+                    bnd!!.navView.getOrCreateBadge(id).number = 0
+                bnd!!.navView.getOrCreateBadge(id).number = bnd!!.navView.getOrCreateBadge(id).number.plus(number)
+            }
         }
     }
 

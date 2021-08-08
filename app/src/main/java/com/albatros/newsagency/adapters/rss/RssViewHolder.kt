@@ -35,7 +35,7 @@ class RssViewHolder(private val binding: ItemLayoutBinding) :
                 binding.likeBtn.setOnClickListener {
                     if (i in RssItemManager.likedNewsList) {
                         val msg: Snackbar =
-                            Snackbar.make(NavActivity.bnd.root, context.getString(R.string.str_already_liked), Snackbar.LENGTH_LONG)
+                            Snackbar.make(NavActivity.bnd!!.root, context.getString(R.string.str_already_liked), Snackbar.LENGTH_LONG)
                         val params = msg.view.layoutParams as CoordinatorLayout.LayoutParams
                         params.anchorId = R.id.nav_view
                         params.anchorGravity = Gravity.TOP
@@ -47,7 +47,7 @@ class RssViewHolder(private val binding: ItemLayoutBinding) :
                     if (i !in RssItemManager.likedNewsList) {
                        NavActivity.increaseBottomBadge(R.id.navigation_dashboard)
                         val msg = Snackbar.make(
-                            NavActivity.bnd.root, context.getString(R.string.str_liked_done),
+                            NavActivity.bnd!!.root, context.getString(R.string.str_liked_done),
                             Snackbar.LENGTH_SHORT
                         )
                         val params = msg.view.layoutParams as CoordinatorLayout.LayoutParams

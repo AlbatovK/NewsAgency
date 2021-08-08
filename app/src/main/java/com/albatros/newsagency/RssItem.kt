@@ -15,7 +15,7 @@ class RssItem(
     pubDate: String
 ) {
 
-    private var categoryWords = HashSet<String>()
+    var categoryWords = HashSet<String>()
     var date: Date = Date(System.currentTimeMillis())
 
     init {

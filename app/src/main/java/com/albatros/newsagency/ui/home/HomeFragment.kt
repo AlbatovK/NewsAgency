@@ -121,17 +121,31 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        retainInstance = true
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val touchHelper = ItemTouchHelper(touchCallback)
         touchHelper.attachToRecyclerView(binding.rssList)
         binding.rssList.layoutManager = LinearLayoutManager(container?.context)
-        binding.rssList.adapter = RssAdapter(RssItemManager.newsList)
+        if (PreferenceManager(binding.root.context).getString(PreferenceManager.FILTER_KEY, PreferenceManager.NONE_FILTER_MODE, binding.root.context)
+            == PreferenceManager.FILTER_MODE) {
+            val tags = XmlFeedParser.parseTagDoc(FileManager.readFile(binding.root.context, FileManager.tags_storage))
+            val list = RssItemManager.newsList.filter { item ->
+                tags.find { item.categoryWords.contains(it) } != null
+            }
+            if (tags.isEmpty())
+                binding.rssList.adapter = RssAdapter(RssItemManager.newsList)
+            else {
+                binding.rssList.adapter = RssAdapter(list)
+                NavActivity.increaseBottomBadge(R.id.navigation_home, list.size, clear = true)
+            }
+        } else {
+            binding.rssList.adapter = RssAdapter(RssItemManager.newsList)
+            NavActivity.increaseBottomBadge(R.id.navigation_home, RssItemManager.newsList.size, clear = true)
+        }
         binding.swipeContainer.setOnRefreshListener(refresher)
         sortNews()
+
         return binding.root
     }
-
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
